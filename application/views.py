@@ -8,6 +8,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Count
 from django.db.models.functions import TruncDate
+from .mixins import ViewCountMixin
 
 from .models import Mahsulot, Category, Tag, Article, Book, Course, VisitorLog
 from .serializers import (
@@ -72,27 +73,13 @@ class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
-class ArticleViewSet(viewsets.ModelViewSet):
-    queryset = Article.objects.all()
+class ArticleViewSet(ViewCountMixin, viewsets.ModelViewSet):
+    queryset = Article.objects.select_related("category").prefetch_related("tags").all()
     serializer_class = ArticleSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.views += 1
-        instance.save()
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
-
-class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all()
+class BookViewSet(ViewCountMixin, viewsets.ModelViewSet):
+    queryset = Book.objects.select_related("category").prefetch_related("tags").all()
     serializer_class = BookSerializer
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.views += 1
-        instance.save()
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
 
     @action(detail=True, methods=['get'])
     def download_pdf(self, request, pk=None):
@@ -110,13 +97,15 @@ class BookViewSet(viewsets.ModelViewSet):
             return FileResponse(book.sample_pdf_file.open(), as_attachment=False)
         return Response({"error": "Sample PDF not available."}, status=status.HTTP_404_NOT_FOUND)
 
-class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.all()
+class CourseViewSet(ViewCountMixin, viewsets.ModelViewSet):
+    queryset = Course.objects.select_related("category").prefetch_related("tags").all()
     serializer_class = CourseSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.views += 1
-        instance.save()
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+from django.contrib.auth.models import User
+from .serializers import UserSerializer
+from rest_framework.permissions import IsAdminUser
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]

@@ -93,5 +93,12 @@ class VisitorLog(models.Model):
     user_agent = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["timestamp"]),
+            models.Index(fields=["path"]),
+            models.Index(fields=["timestamp", "path"]),
+        ]
+
     def __str__(self):
         return f"{self.ip_address} visited {self.path} at {self.timestamp}"

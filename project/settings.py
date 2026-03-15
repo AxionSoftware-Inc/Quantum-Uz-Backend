@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -243,12 +244,16 @@ JAZZMIN_UI_TWEAKS = {
 CORS_ALLOWED_ORIGINS = [
     "http://62.72.32.37:3000",
     "https://62.72.32.37:3000",
+    "http://62.72.32.37:3001",
+    "https://62.72.32.37:3001",
 ]
 
 # Optional but recommended for DRF + Session Authentication or CSRF protection
 CSRF_TRUSTED_ORIGINS = [
     "http://62.72.32.37:3000",
     "https://62.72.32.37:3000",
+    "http://62.72.32.37:3001",
+    "https://62.72.32.37:3001",
 ]
 
 # To allow all origins (less secure, use only for debugging if needed)

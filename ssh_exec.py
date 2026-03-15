@@ -9,8 +9,10 @@ def ssh_exec(host, user, password, command):
         
         stdin, stdout, stderr = client.exec_command(command)
         
-        print(stdout.read().decode())
-        print(stderr.read().decode(), file=sys.stderr)
+        sys.stdout.buffer.write(stdout.read())
+        sys.stderr.buffer.write(stderr.read())
+
+
         
         client.close()
     except Exception as e:
